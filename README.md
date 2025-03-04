@@ -1,2 +1,2 @@
-# Project-J.UN.E
+# Project-J.U.N.E
 Final year project
