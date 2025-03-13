@@ -3,6 +3,8 @@ import ssl
 import ctypes
 import os
 import time
+from datetime import datetime as DateTime
+
 
 def lock_computer():
     ctypes.windll.user32.LockWorkStation()
