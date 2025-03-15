@@ -2,7 +2,6 @@ import paho.mqtt.client as mqtt
 import ssl
 import ctypes
 import os
-import time
 from datetime import datetime as DateTime
 
 
@@ -18,8 +17,8 @@ def process_message(message):
         return "I am Fine"
     elif message == "tell me your name":
         return "My name is HiveMQ"
-    elif message == "what is the time":
-        return "The time is"+ DateTime.now().strftime("%H:%M:%S")
+    elif "what" in message and "time" in message:
+        return "The time is " + DateTime.now().strftime("%H:%M:%S")
     elif message == "what is the date":
         return "The date is"+ DateTime.now().strftime("%d/%m/%Y")
     elif message.lower() == "lock computer":
