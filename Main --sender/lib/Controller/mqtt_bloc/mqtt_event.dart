@@ -9,6 +9,20 @@ class MQTTConnect extends MQTTEvent {
   List<Object> get props => [];
 }
 
+class MQTTStartListening extends MQTTEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class MQTTNewMessage extends MQTTEvent {
+  final String payload;
+
+  MQTTNewMessage(this.payload);
+
+  @override
+  List<Object> get props => [payload];
+}
+
 class MQTTDisconnect extends MQTTEvent {
   @override
   List<Object> get props => [];

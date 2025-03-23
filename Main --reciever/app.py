@@ -9,8 +9,8 @@ PORT = 8883
 TOPIC_SUBSCRIBE = "SENDER"
 TOPIC_PUBLISH = "RECIEVER"
 TOPIC_STATUS = "STATUS"
-USERNAME = "admin@gmail.com"
-PASSWORD = "Admin@123"
+USERNAME = "hsundar2004"
+PASSWORD = "Lonely@2004"
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -31,7 +31,7 @@ def on_message(client, userdata, msg):
     
     if payload.lower() == "status":
         status_info = get_current_status()
-        status_message = json.dumps(status_info)
+        status_message = json.dumps({"status" : status_info})
         client.publish(TOPIC_STATUS, status_message)
         print(f"Broadcasted status: {status_message}")
     else:

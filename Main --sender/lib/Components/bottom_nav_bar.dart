@@ -29,7 +29,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    connectToMQTT();
   }
 
   static final List<Widget> _pages = <Widget>[
@@ -41,22 +40,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
     setState(() {
       _selectedIndex = index;
     });
-  }
-
-  Future<void> connectToMQTT() async {
-    bool connected = await MQTTHelper.connect();
-    if (connected) {
-      MQTTHelper.subscribe('RECIEVER');
-
-      MQTTHelper.getMessagesStream()?.listen((messages) {
-        final message = messages[0].payload as MqttPublishMessage;
-        final payload =
-        MqttPublishPayload.bytesToStringAsString(message.payload.message);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Message: $payload'),
-        ));
-      });
-    }
   }
 
   @override

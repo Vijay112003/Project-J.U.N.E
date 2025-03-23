@@ -12,7 +12,6 @@ class Brightness:
     def set_brightness(value):
         try:
             sbc.set_brightness(value)
-            return f"Brightness set to {value}%"
         except Exception as e:
             return f"Failed to set brightness: {e}"
         

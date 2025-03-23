@@ -9,6 +9,11 @@ class ManualInitial extends ManualState {
   List<Object> get props => [];
 }
 
+class Syncing extends ManualState {
+  @override
+  List<Object> get props => [];
+}
+
 class ManualBrightnessChanged extends ManualState {
   final int brightness;
 

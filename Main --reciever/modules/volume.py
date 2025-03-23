@@ -19,6 +19,5 @@ class Volume:
             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
             volume = interface.QueryInterface(IAudioEndpointVolume)
             volume.SetMasterVolumeLevelScalar(level / 100, None)
-            return f"Volume set to {level}%"
         except Exception as e:
             return f"Failed to set volume: {e}"

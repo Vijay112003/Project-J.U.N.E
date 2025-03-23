@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../Models/status_model.dart';
+
 abstract class MQTTState extends Equatable {
   const MQTTState();
 }
@@ -35,5 +37,14 @@ class MQTTMessageReceived extends MQTTState {
 
   @override
   List<Object> get props => [message];
+}
+
+class MQTTStatusReceived extends MQTTState {
+  final StatusInfo statusInfo;
+
+  MQTTStatusReceived(this.statusInfo);
+
+  @override
+  List<Object> get props => [statusInfo];
 }
 
