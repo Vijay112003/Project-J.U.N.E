@@ -13,3 +13,6 @@ class MacroAction(ActionBase):
 
 class VoiceAction(ActionBase):
     text: str
+    
+class TerminalAction(ActionBase):
+    command: str

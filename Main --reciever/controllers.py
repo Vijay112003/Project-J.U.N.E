@@ -8,6 +8,9 @@ from modules.power import Power
 from modules.wifi import WiFi
 from modules.bluetooth import Bluetooth
 from voice.voice_processing import BatchScriptGenerator
+from terminal.terminal import Terminal
+
+terminal = Terminal()  # Initialize Terminal instance
 
 def lock_computer():
     ctypes.windll.user32.LockWorkStation()
@@ -66,7 +69,12 @@ def process_action(payload):
             generator.process(text)
             return {"message": "Voice command executed successfully"}
 
+        elif data.get("type") == "terminal":
+            command = data.get("text", "")
+            if command:
+                return terminal.execute_command(command)  # Execute and return output
+            return {"terminal_error": "Empty command"}
+
         return {"error": "Unknown command"}
     except json.JSONDecodeError:
         return {"error": "Invalid JSON format"}
-        
