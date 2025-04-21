@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:pc_connect/Services/mqtt_service.dart';
-import '../Views/home_screen.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:pc_connect/Components/_homeComponents.dart';
+import 'package:pc_connect/Views/home_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,16 +24,13 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
+  int _volume = 50;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  static final List<Widget> _pages = <Widget>[
+  final List<Widget> _pages = [
     HomeScreen(),
-    const Center(child: Text('Settings Page', style: TextStyle(fontSize: 24))),
+    Center(child: Text("Macros", style: TextStyle(fontSize: 24))),
+    Center(child: Text("Terminal", style: TextStyle(fontSize: 24))),
+    Center(child: Text("Settings", style: TextStyle(fontSize: 24))),
   ];
 
   void _onItemTapped(int index) {
@@ -46,20 +43,57 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      floatingActionButton: VoiceButton(
+        onVoiceCommand: (text) {
+          print("Sending voice command: $text");
+          // MQTTHelper.publishMessage(
+          //     'SENDER', '{"type": "voice", "text": "$text"}');
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        color: Colors.blue,
+        notchMargin: 8.0,
+        elevation: 10,
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.085,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: Icon(
+                  HugeIcons.strokeRoundedHome11,
+                  color: _selectedIndex == 0 ? Colors.white : Colors.black,
+                ),
+                onPressed: () => _onItemTapped(0),
+              ),
+              IconButton(
+                icon: Icon(
+                  HugeIcons.strokeRoundedGroup01,
+                  color: _selectedIndex == 1 ? Colors.white : Colors.black,
+                ),
+                onPressed: () => _onItemTapped(1),
+              ),
+              SizedBox(width: 40), // Space for the floating action button
+              IconButton(
+                icon: Icon(
+                  HugeIcons.strokeRoundedCommandLine,
+                  color: _selectedIndex == 2 ? Colors.white : Colors.black,
+                ),
+                onPressed: () => _onItemTapped(2),
+              ),
+              IconButton(
+                icon: Icon(
+                  HugeIcons.strokeRoundedTools,
+                  color: _selectedIndex == 3 ? Colors.white : Colors.black,
+                ),
+                onPressed: () => _onItemTapped(3),
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        onTap: _onItemTapped,
+        ),
       ),
     );
   }

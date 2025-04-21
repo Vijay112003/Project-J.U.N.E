@@ -3,51 +3,49 @@ import threading
 import time
 import os
 import sys
-import select
+import queue
 
 class Terminal:
     """Handles persistent terminal sessions with reliable synchronous command execution."""
 
     def __init__(self):
-        """Initialize a persistent cmd.exe session."""
         print("[DEBUG] Initializing Terminal session...")
         self.process = subprocess.Popen(
             ["cmd.exe"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
             bufsize=1
         )
         self.lock = threading.Lock()
-        time.sleep(0.5)  # Allow time for initialization
+        self.output_queue = queue.Queue()
+        self.stdout_thread = threading.Thread(target=self._enqueue_output, daemon=True)
+        self.stdout_thread.start()
+        time.sleep(0.5)
         self._clear_buffer()
         print("[DEBUG] Terminal session initialized.")
 
-    def _clear_buffer(self, timeout=1.0):
-        """Clears any pending output in the terminal buffer with a timeout."""
+    def _enqueue_output(self):
+        """Thread target: read lines and put them into a queue."""
+        for line in self.process.stdout:
+            self.output_queue.put(line.strip())
+
+    def _clear_buffer(self):
+        """Clear any remaining output in the queue."""
         print("[DEBUG] Clearing terminal buffer...")
-        start_time = time.time()
-        while time.time() - start_time < timeout:
-            rlist, _, _ = select.select([self.process.stdout], [], [], 0.1)
-            if rlist:
-                line = self.process.stdout.readline().strip()
-                if not line:
-                    break
+        while not self.output_queue.empty():
+            discarded = self.output_queue.get_nowait()
         print("[DEBUG] Buffer cleared.")
 
     def execute_command(self, command):
-        """Execute a command synchronously and return the output."""
         print(f"[DEBUG] Executing command: {command}")
         with self.lock:
             try:
                 self._clear_buffer()
-
-                # Unique marker to detect end of the command
                 marker = f"__END__{os.getpid()}__"
                 full_command = f"{command} & echo {marker}\n"
-                
-                # Write command to stdin
+
                 print("[DEBUG] Sending command to stdin...")
                 self.process.stdin.write(full_command)
                 self.process.stdin.flush()
@@ -55,29 +53,26 @@ class Terminal:
 
                 output = []
                 while True:
-                    rlist, _, _ = select.select([self.process.stdout], [], [], 2.0)
-                    if rlist:
-                        line = self.process.stdout.readline().strip()
+                    try:
+                        line = self.output_queue.get(timeout=2.0)
                         print(f"[DEBUG] Read line: {line}")
                         if marker in line:
                             print("[DEBUG] Marker detected. Ending command output collection.")
                             break
-                        if line:
-                            output.append(line)
-                    else:
+                        output.append(line)
+                    except queue.Empty:
                         print("[DEBUG] No output received within timeout.")
                         break
 
                 result = "\n".join(output) if output else "Command executed with no output"
                 print(f"[DEBUG] Command execution result:\n{result}")
                 return result
-            
+
             except Exception as e:
                 print(f"[ERROR] {str(e)}")
                 return f"Error: {str(e)}"
 
     def close(self):
-        """Terminate the terminal session safely."""
         print("[DEBUG] Closing terminal session...")
         with self.lock:
             try:
@@ -88,15 +83,3 @@ class Terminal:
                 self.process.terminate()
                 self.process.wait()
         print("[DEBUG] Terminal session closed.")
-
-# Example usage
-if __name__ == "__main__":
-    terminal = Terminal()
-
-    print("Running 'dir':")
-    print(terminal.execute_command("dir"))
-
-    print("\nRunning 'ipconfig':")
-    print(terminal.execute_command("ipconfig"))
-
-    terminal.close()

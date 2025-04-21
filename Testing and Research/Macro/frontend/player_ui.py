@@ -1,7 +1,6 @@
 import tkinter as tk
 import threading
 from backend.player import MacroPlayer  # Import MacroPlayer
-from frontend.home_ui import HomePage  # Import HomePage for navigation
 
 class PlayerPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -16,6 +15,8 @@ class PlayerPage(tk.Frame):
         
         self.status = tk.Label(self, text="Ready", bd=1, relief=tk.SUNKEN, anchor=tk.W)
         self.status.pack(fill=tk.X, pady=5)
+        
+        from frontend.home_ui import HomePage
         
         tk.Button(self, text="Back to Home", command=lambda: controller.show_frame(HomePage)).pack(pady=10)
         

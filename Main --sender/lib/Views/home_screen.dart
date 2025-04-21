@@ -1,15 +1,18 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:pc_connect/Components/_homeComponents.dart';
+import 'package:pc_connect/Config/text_theme.dart';
 import 'package:pc_connect/Controller/manual_bloc/manual_bloc.dart';
 import 'package:pc_connect/Controller/manual_bloc/manual_event.dart';
 import 'package:pc_connect/Controller/mqtt_bloc/mqtt_bloc.dart';
 import 'package:pc_connect/Controller/mqtt_bloc/mqtt_event.dart';
 import 'package:pc_connect/Controller/mqtt_bloc/mqtt_state.dart';
+import 'package:pc_connect/Models/home_models.dart';
 import 'package:pc_connect/Services/mqtt_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../Models/status_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -28,6 +31,29 @@ class _HomeScreenState extends State<HomeScreen> {
   int brightness = 50;
   int volume = 50;
 
+  List<AppWidgetModel> apps = [
+    AppWidgetModel(
+        name: "Google Chrome",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBFJYG6Wdb7DawiV0gfkfaCW4tinaEh0VCVg&s",
+        command: "google-chrome"
+    ),
+    AppWidgetModel(
+        name: "Microsoft Edge",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-Qzo1NiAsyBBGSyF7nZvKPBuPX_EaXTAFdg&s",
+        command: "microsoft-edge"
+    ),
+    AppWidgetModel(
+        name: "Microsoft Word",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzw4zM8bYkbqu4rxIuBXcIq1vIZKSC6LIyAg&s",
+        command: "microsoft-word"
+    ),
+    AppWidgetModel(
+        name: "Microsoft Excel",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Microsoft_Office_Excel_%282019%E2%80%93present%29.svg/1200px-Microsoft_Office_Excel_%282019%E2%80%93present%29.svg.png",
+        command: "microsoft-excel"
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -38,17 +64,25 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text('MY PC', style: MyTextTheme.headline),
         actions: [
-          Row(
-            children: [
-              if (_statusInfo?.power == "Charging")
-                Icon(FontAwesomeIcons.bolt, color: Colors.green),
-              SizedBox(width: 10),
-              BatteryWidget(batteryLevel: _statusInfo?.battery ?? 50),
-              SizedBox(width: 10),
-            ],
-          ),
+          // Wifi Section
+          if(_statusInfo?.wifi ?? false)
+            Icon(HugeIcons.strokeRoundedWifi01, color: Colors.green),
+          if(_statusInfo?.wifi == false)
+            Icon(HugeIcons.strokeRoundedWifiOff01, color: Colors.red),
+          SizedBox(width: 10),
+
+          // Bluetooth Section
+          if(_statusInfo?.bluetooth ?? false)
+            Icon(HugeIcons.strokeRoundedBluetooth, color: Colors.green),
+          if(_statusInfo?.bluetooth == false)
+            Icon(HugeIcons.strokeRoundedBluetoothNotConnected, color: Colors.red),
+          SizedBox(width: 10),
+
+          // Battery Section
+          if(_statusInfo?.battery != null)
+            BatteryWidget(batteryLevel: _statusInfo?.battery ?? 50, isCharging: _statusInfo?.power == "Charging"),
           // SyncButton to initiate the sync process
           SyncButton(
             isSyncing: _isSyncing,
@@ -101,147 +135,203 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Expanded(
-                    child: GridView(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.0,
-                  ),
-                  children: [
-                    RoundedButton(
-                      icon: FontAwesomeIcons.powerOff,
-                      name: "Power",
-                      color: Colors.red,
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return ConfirmationDialog(
-                                  title: "Power",
-                                  content:
-                                      "Are you sure you want to power off?",
-                                  onConfirm: () {
-                                    BlocProvider.of<ManualBloc>(context)
-                                        .add(TogglePower());
-                                  });
-                            });
-                      },
-                    ),
-
-                    RoundedButton(
-                      icon: Icons.lock,
-                      name: "Lock",
-                      color: Colors.grey,
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return ConfirmationDialog(
-                                  title: "Lock",
-                                  content:
-                                      "Are you sure you want to lock the device?",
-                                  onConfirm: () {
-                                    BlocProvider.of<ManualBloc>(context)
-                                        .add(ToggleLock());
-                                  });
-                            });
-                      },
-                    ),
-
-                    RoundedButton(
-                      icon: Icons.bluetooth,
-                      name: "Bluetooth",
-                      color: (_statusInfo?.bluetooth ?? false)
-                          ? Colors.green
-                          : Colors.grey,
-                      onTap: () {
-                        BlocProvider.of<ManualBloc>(context)
-                            .add(ToggleBluetooth());
-                      },
-                    ),
-
-                    RoundedButton(
-                      icon: Icons.wifi,
-                      name: "Wi-Fi",
-                      color: (_statusInfo?.wifi ?? false)
-                          ? Colors.green
-                          : Colors.grey,
-                      onTap: () {
-                        BlocProvider.of<ManualBloc>(context).add(ToggleWifi());
-                      },
-                    ),
-
-                    RoundedButton(
-                      icon: Icons.volume_up,
-                      name: "Volume",
-                      color: Colors.blue,
-                      onTap: () {
-                        _showVolumeBottomSheet(volume);
-                      },
-                    ),
-
-                    // RoundedButton(
-                    //   icon: Icons.mic_off,
-                    //   name: "Mute",
-                    //   color: Colors.grey,
-                    //   onTap: () {
-                    //     // Implement mute functionality
-                    //   },
-                    // ),
-
-                    RoundedButton(
-                      icon: Icons.brightness_6,
-                      name: "Brightness",
-                      color: Colors.orangeAccent,
-                      onTap: () {
-                        _showBrightnessBottomSheet(brightness);
-                      },
-                    ),
-
-                    // RoundedButton(
-                    //   icon: Icons.apps,
-                    //   name: "Apps",
-                    //   color: Colors.grey,
-                    //   onTap: () {
-                    //     // Implement apps functionality
-                    //   },
-                    // ),
-
-                    // RoundedButton(
-                    //   icon: Icons.mouse_outlined,
-                    //   name: "Touch Pad",
-                    //   color: Colors.grey,
-                    //   onTap: () {
-                    //     // Implement touchpad functionality
-                    //   },
-                    // ),
-                    //
-                    // RoundedButton(
-                    //   icon: Icons.keyboard,
-                    //   name: "Keyboard",
-                    //   color: Colors.grey,
-                    //   onTap: () {
-                    //     // Implement keyboard functionality
-                    //   },
-                    // ),
-                  ],
-                )),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildTopButtons(),
+                  SizedBox(height: 10),
+                  _buildAppCarousel(apps),
+                  SizedBox(height: 10),
+                  _buildMouseArea()
+                ],
+              ),
             ),
-          )),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: VoiceButton(
-          onVoiceCommand: (text) {
-            print("Sending voice command: $text");
-            MQTTHelper.publishMessage(
-                'SENDER', '{"type": "voice", "text": "$text"}');
+          ),
+      ),
+    );
+  }
+
+  Widget _buildTopButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        RoundedButton(
+          icon: FontAwesomeIcons.powerOff,
+          name: "Power",
+          color: Colors.red,
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return ConfirmationDialog(
+                      title: "Power",
+                      content:
+                      "Are you sure you want to power off?",
+                      onConfirm: () {
+                        BlocProvider.of<ManualBloc>(context)
+                            .add(TogglePower());
+                      });
+                });
           },
         ),
+
+        RoundedButton(
+          icon: Icons.lock,
+          name: "Lock",
+          color: Colors.grey,
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return ConfirmationDialog(
+                      title: "Lock",
+                      content:
+                      "Are you sure you want to lock the device?",
+                      onConfirm: () {
+                        BlocProvider.of<ManualBloc>(context)
+                            .add(ToggleLock());
+                      });
+                });
+          },
+        ),
+
+        RoundedButton(
+          icon: Icons.volume_up,
+          name: "Volume",
+          color: Colors.blue,
+          onTap: () {
+            _showVolumeBottomSheet(volume);
+          },
+        ),
+
+        RoundedButton(
+          icon: Icons.brightness_6,
+          name: "Brightness",
+          color: Colors.orangeAccent,
+          onTap: () {
+            _showBrightnessBottomSheet(brightness);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppCarousel(List<AppWidgetModel> appsData) {
+    return CarouselSlider(
+      items: appsData.map((app) => _buildAppButton(app)).toList(),
+      options: CarouselOptions(
+        height: 120, // slightly increased to avoid clipping
+        autoPlay: false,
+        viewportFraction: 0.35,
+        enlargeCenterPage: true,
+        enableInfiniteScroll: false,
+        aspectRatio: 1.5,
+        initialPage: (appsData.length / 2).toInt(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  Widget _buildAppButton(AppWidgetModel app) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Container(
+        margin: EdgeInsets.all(5),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              flex: 2,
+              child: Image.network(
+                app.image,
+                width: 50,
+                height: 50,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 50),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Flexible(
+              child: Text(
+                app.name,
+                style: MyTextTheme.normal,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildMouseArea() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          TrackPadWidget(
+            onGesture: (data) {
+              print("📡 Gesture data sent: $data");
+            },
+          ),
+          SizedBox(height: 5),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    maximumSize: Size(100, 50),
+                    minimumSize: Size(100, 50),
+                  ),
+                  onPressed: () {
+                    // BlocProvider.of<ManualBloc>(context)
+                    //     .add(ClickMouse());
+                  },
+                  child: Text("left", style: MyTextTheme.subheading.copyWith(color: Colors.white)),
+                ),
+              ),
+              SizedBox(width: 5),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    maximumSize: Size(100, 50),
+                    minimumSize: Size(100, 50),
+                  ),
+                  onPressed: () {
+                    // BlocProvider.of<ManualBloc>(context)
+                    //     .add(ClickMouse());
+                  },
+                  child: Text("right", style: MyTextTheme.subheading.copyWith(color: Colors.white)),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 

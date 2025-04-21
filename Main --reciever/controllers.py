@@ -9,6 +9,7 @@ from modules.wifi import WiFi
 from modules.bluetooth import Bluetooth
 from voice.voice_processing import BatchScriptGenerator
 from terminal.terminal import Terminal
+from macro.macro import MacroPlayer
 
 terminal = Terminal()  # Initialize Terminal instance
 
@@ -66,8 +67,22 @@ def process_action(payload):
             text = data.get("text", "").lower()
             GOOGLE_API_KEY = "AIzaSyCPwuJF0lbcGGLPTwwcp02Hg_plqPJGHQc"
             generator = BatchScriptGenerator(api_key=GOOGLE_API_KEY)
+
+            if "run macro" in text or "execute macro" in text:
+                # Extract macro name
+                parts = text.split()
+                try:
+                    idx = parts.index("macro")
+                    macro_name = parts[idx + 1]  # Get the word right after "macro"
+                    MacroPlayer.play_macro("macro.json")  # Play the macro
+                    return {"message": f"Macro '{macro_name}' executed successfully"}
+                except (IndexError, ValueError):
+                    return {"message": "Invalid macro command format"}
+
+            # Optionally handle other voice commands here
             generator.process(text)
             return {"message": "Voice command executed successfully"}
+
 
         elif data.get("type") == "terminal":
             command = data.get("text", "")
