@@ -15,12 +15,12 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Models/status_model.dart';
 
-class HomeScreen extends StatefulWidget {
+class Home extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomeState createState() => _HomeState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeState extends State<Home> {
   late stt.SpeechToText _speech;
   String _text = "Press the mic and start speaking...";
   bool _isListening = false;
@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    BlocProvider.of<ManualBloc>(context).add(SyncButtonPressed());
     _speech = stt.SpeechToText();
   }
 

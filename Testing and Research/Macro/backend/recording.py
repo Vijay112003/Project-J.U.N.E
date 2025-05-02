@@ -1,5 +1,6 @@
 import json
 import time
+import os
 from pynput import keyboard, mouse
 
 class MacroRecorder:
@@ -17,16 +18,13 @@ class MacroRecorder:
         self.callback = callback
 
     def current_time(self):
-        """Returns elapsed time since recording started."""
         return time.time() - self.start_time if self.start_time else 0
 
     def log(self, event_type, details):
-        """Log event and notify UI if callback is set"""
         if self.callback:
             self.callback(event_type, details)
 
     def on_press(self, key):
-        """Records key press events."""
         if not self.recording:
             return False
 
@@ -42,11 +40,10 @@ class MacroRecorder:
             pass
 
     def on_release(self, key):
-        """Records key release events."""
         if not self.recording:
             return False
 
-        if key == keyboard.Key.esc:  # Stop recording on ESC
+        if key == keyboard.Key.esc:
             self.log("system", "Recording stopped by ESC key")
             self.stop_recording()
             return False
@@ -60,7 +57,6 @@ class MacroRecorder:
         self.log("key_release", key_name)
 
     def on_click(self, x, y, button, pressed):
-        """Records mouse clicks."""
         if not self.recording:
             return False
 
@@ -75,7 +71,6 @@ class MacroRecorder:
         self.log(action, f"({x}, {y}) with {button}")
 
     def on_move(self, x, y):
-        """Records mouse movements if enabled."""
         if not self.recording:
             return False
 
@@ -89,7 +84,6 @@ class MacroRecorder:
             self.log("mouse_move", f"({x}, {y})")
 
     def stop_recording(self):
-        """Stops the recording process."""
         if self.recording:
             self.recording = False
             if self.key_listener:
@@ -97,22 +91,15 @@ class MacroRecorder:
             if self.mouse_listener:
                 self.mouse_listener.stop()
 
-    def record_macro(self):
-        """Starts recording macro events."""
-        self.macro_data = []  # Clear previous recording
+    def record_macro(self, json_filename="macro.json"):
+        self.macro_data = []
         self.recording = True
         self.start_time = time.time()
         self.log("system", "Recording started")
 
         # Start listeners
-        self.key_listener = keyboard.Listener(
-            on_press=self.on_press,
-            on_release=self.on_release
-        )
-        self.mouse_listener = mouse.Listener(
-            on_click=self.on_click,
-            on_move=self.on_move if self.capture_mouse_path else None
-        )
+        self.key_listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
+        self.mouse_listener = mouse.Listener(on_click=self.on_click, on_move=self.on_move if self.capture_mouse_path else None)
 
         self.key_listener.start()
         self.mouse_listener.start()
@@ -121,8 +108,14 @@ class MacroRecorder:
         while self.recording:
             time.sleep(0.1)
 
-        # Save recorded actions
-        with open("macro.json", "w") as file:
+        # Ensure directory exists
+        save_dir = "saved_macros"
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, json_filename)
+
+        # Save to file
+        with open(save_path, "w") as file:
             json.dump(self.macro_data, file, indent=4)
 
-        self.log("system", "Recording saved as 'macro.json'")
+        self.log("system", f"Recording saved to '{save_path}'")
+        return save_path

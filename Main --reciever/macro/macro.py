@@ -2,37 +2,19 @@ import pyautogui
 import json
 import time
 import keyboard
+import threading
 
 class MacroPlayer:
     SPECIAL_KEYS = {
-        "Key.backspace": "backspace",
-        "Key.enter": "enter",
-        "Key.space": "space",
-        "Key.shift": "shift",
-        "Key.shift_l": "shift",
-        "Key.shift_r": "shift",
-        "Key.ctrl": "ctrl",
-        "Key.ctrl_l": "ctrl",
-        "Key.ctrl_r": "ctrl",
-        "Key.alt": "alt",
-        "Key.alt_l": "alt",
-        "Key.alt_r": "alt",
-        "Key.cmd": "win",
-        "Key.cmd_l": "win",
-        "Key.cmd_r": "win",
-        "Key.tab": "tab",
-        "Key.esc": "esc",
-        "Key.caps_lock": "capslock",
-        "Key.delete": "delete",
-        "Key.insert": "insert",
-        "Key.home": "home",
-        "Key.end": "end",
-        "Key.page_up": "pageup",
-        "Key.page_down": "pagedown",
-        "Key.left": "left",
-        "Key.right": "right",
-        "Key.up": "up",
-        "Key.down": "down",
+        "Key.backspace": "backspace", "Key.enter": "enter", "Key.space": "space",
+        "Key.shift": "shift", "Key.shift_l": "shift", "Key.shift_r": "shift",
+        "Key.ctrl": "ctrl", "Key.ctrl_l": "ctrl", "Key.ctrl_r": "ctrl",
+        "Key.alt": "alt", "Key.alt_l": "alt", "Key.alt_r": "alt",
+        "Key.cmd": "win", "Key.cmd_l": "win", "Key.cmd_r": "win",
+        "Key.tab": "tab", "Key.esc": "esc", "Key.caps_lock": "capslock",
+        "Key.delete": "delete", "Key.insert": "insert", "Key.home": "home",
+        "Key.end": "end", "Key.page_up": "pageup", "Key.page_down": "pagedown",
+        "Key.left": "left", "Key.right": "right", "Key.up": "up", "Key.down": "down",
         "Key.f1": "f1", "Key.f2": "f2", "Key.f3": "f3", "Key.f4": "f4",
         "Key.f5": "f5", "Key.f6": "f6", "Key.f7": "f7", "Key.f8": "f8",
         "Key.f9": "f9", "Key.f10": "f10", "Key.f11": "f11", "Key.f12": "f12"
@@ -40,20 +22,18 @@ class MacroPlayer:
 
     def __init__(self, playback_speed=1.0):
         self.playback_speed = playback_speed
+        self.thread = None
+        self.on_end_callback = None  # Optional callback
 
     def clean_key_name(self, key):
-        """Convert recorded key names to proper format"""
         return self.SPECIAL_KEYS.get(key, key)
 
     def load_macro(self, filename="macro.json"):
-        """Load macro actions from JSON file"""
         with open(filename, "r") as file:
             return json.load(file)
 
     def play_actions(self, actions):
-        """Execute the loaded macro actions"""
         start_time = time.time()
-
         for action in actions:
             delay = (action["time"] - (time.time() - start_time)) / self.playback_speed
             if delay > 0:
@@ -75,7 +55,16 @@ class MacroPlayer:
                 time.sleep(0.05)
                 keyboard.release(key)
 
-    def play_macro(self, filename="macro.json"):
-        """Load and play a macro from file"""
+    def _play_macro_thread(self, filename):
         actions = self.load_macro(filename)
         self.play_actions(actions)
+        if self.on_end_callback:
+            self.on_end_callback()  # Call the callback when done
+
+    def play_macro(self, filename, on_end_callback=None):
+        if self.thread and self.thread.is_alive():
+            print("Macro is already playing.")
+            return
+        self.on_end_callback = on_end_callback
+        self.thread = threading.Thread(target=self._play_macro_thread, args=(filename,))
+        self.thread.start()

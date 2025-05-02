@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:pc_connect/Models/macro_models.dart';
 import 'package:pc_connect/Services/mqtt_service.dart';
 import '../../Models/status_model.dart';
 import 'mqtt_event.dart';
@@ -57,12 +58,24 @@ class MQTTBloc extends Bloc<MQTTEvent, MQTTState> {
 
       if (jsonData.containsKey("status") && jsonData["status"] is Map<String, dynamic>) {
         final statusInfo = StatusInfo.fromJson(jsonData["status"]);
-        print("Status: \${statusInfo.battery}");
+        print("Status: ${statusInfo.battery}");
         emit(MQTTStatusReceived(statusInfo));
       } else if (jsonData.containsKey("message") && jsonData["message"] is String) {
         emit(MQTTMessageReceived(jsonData["message"]));
       } else if (jsonData.containsKey("error") && jsonData["error"] is String) {
         emit(MQTTError(jsonData["error"]));
+      } else if (jsonData.containsKey("macros") && jsonData["macros"] is List) {
+        final List<dynamic> macroList = jsonData["macros"];
+        final List<MacroModel> macros = macroList.map((e) => MacroModel.fromJson(e)).toList();
+        emit(MQTTMacrosReceived(macros));
+      } else if (jsonData.containsKey("macro_end") && jsonData["macro_end"] is String) {
+        final String fileName = jsonData["macro_end"];
+        emit(MQTTMacrosEnded(fileName));
+      } else if (jsonData.containsKey("terminal") && jsonData["terminal"] is String) {
+        final String output = jsonData["terminal"];
+        emit(MQTTTerminalReceived(output));
+      } else if (jsonData.containsKey("type") && jsonData["type"] == "command") {
+        emit(MQTTMessageReceived(jsonData["command"]));
       } else {
         emit(MQTTError("Invalid message format"));
       }

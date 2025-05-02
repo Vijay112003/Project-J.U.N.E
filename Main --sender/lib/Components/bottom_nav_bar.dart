@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:pc_connect/Components/_homeComponents.dart';
-import 'package:pc_connect/Views/home_screen.dart';
+import 'package:pc_connect/Views/home.dart';
+import 'package:pc_connect/Views/macros.dart';
+import 'package:pc_connect/Views/terminal.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,9 +29,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _volume = 50;
 
   final List<Widget> _pages = [
-    HomeScreen(),
-    Center(child: Text("Macros", style: TextStyle(fontSize: 24))),
-    Center(child: Text("Terminal", style: TextStyle(fontSize: 24))),
+    Home(),
+    Macros(),
+    Terminal(),
     Center(child: Text("Settings", style: TextStyle(fontSize: 24))),
   ];
 
@@ -41,16 +43,25 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
+      backgroundColor: _selectedIndex == 2 ? Colors.black : Colors.white,
       body: _pages[_selectedIndex],
-      floatingActionButton: VoiceButton(
+
+      // 👇 only show mic button if keyboard is closed
+      floatingActionButton: isKeyboardOpen
+          ? null
+          : VoiceButton(
         onVoiceCommand: (text) {
           print("Sending voice command: $text");
           // MQTTHelper.publishMessage(
           //     'SENDER', '{"type": "voice", "text": "$text"}');
         },
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         color: Colors.blue,
@@ -71,7 +82,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
               ),
               IconButton(
                 icon: Icon(
-                  HugeIcons.strokeRoundedGroup01,
+                  HugeIcons.strokeRoundedMenuSquare,
                   color: _selectedIndex == 1 ? Colors.white : Colors.black,
                 ),
                 onPressed: () => _onItemTapped(1),
