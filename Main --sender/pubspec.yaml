@@ -34,7 +34,7 @@ dependencies:
   speech_to_text:
   permission_handler:
   flutter_bloc:
-  mqtt_client:
+  web_socket_client:
   equatable:
   carousel_slider:
   hugeicons:

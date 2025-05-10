@@ -55,7 +55,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           : VoiceButton(
         onVoiceCommand: (text) {
           print("Sending voice command: $text");
-          // MQTTHelper.publishMessage(
+          // WebSocketHelper.sendMessage(
           //     'SENDER', '{"type": "voice", "text": "$text"}');
         },
       ),

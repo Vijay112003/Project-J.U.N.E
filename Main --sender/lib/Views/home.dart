@@ -6,11 +6,11 @@ import 'package:pc_connect/Components/_homeComponents.dart';
 import 'package:pc_connect/Config/text_theme.dart';
 import 'package:pc_connect/Controller/manual_bloc/manual_bloc.dart';
 import 'package:pc_connect/Controller/manual_bloc/manual_event.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_bloc.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_event.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_state.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_bloc.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_event.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_state.dart';
 import 'package:pc_connect/Models/home_models.dart';
-import 'package:pc_connect/Services/mqtt_service.dart';
+import 'package:pc_connect/Services/websocket_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Models/status_model.dart';
@@ -99,22 +99,22 @@ class _HomeState extends State<Home> {
           SizedBox(width: 10),
         ],
       ),
-      body: BlocListener<MQTTBloc, MQTTState>(
+      body: BlocListener<WebSocketBloc, WebSocketState>(
           listener: (context, state) {
-            if (state is MQTTConnected) {
-              BlocProvider.of<MQTTBloc>(context).add(MQTTStartListening());
+            if (state is WebSocketConnected) {
+              BlocProvider.of<WebSocketBloc>(context).add(WebSocketStartListening());
               BlocProvider.of<ManualBloc>(context).add(SyncButtonPressed());
               setState(() {
                 _isSyncing = true; // Set syncing status
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Connected to MQTT"),
+                  content: Text("Connected to WebSocket"),
                   duration: Duration(seconds: 2),
                 ),
               );
             }
-            if (state is MQTTMessageReceived) {
+            if (state is WebSocketMessageReceived) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Message received: ${state.message}"),
@@ -122,7 +122,7 @@ class _HomeState extends State<Home> {
                 ),
               );
             }
-            if (state is MQTTStatusReceived) {
+            if (state is WebSocketStatusReceived) {
               setState(() {
                 _isSyncing = false;
               });

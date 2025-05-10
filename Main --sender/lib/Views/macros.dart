@@ -4,8 +4,8 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:pc_connect/Config/text_theme.dart';
 import 'package:pc_connect/Controller/macro_bloc/macro_bloc.dart';
 import 'package:pc_connect/Controller/macro_bloc/macro_event.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_bloc.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_state.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_bloc.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_state.dart';
 import 'package:pc_connect/Models/macro_models.dart';
 import 'package:pc_connect/main.dart';
 
@@ -76,13 +76,13 @@ class _MacrosState extends State<Macros> with RouteAware {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: BlocConsumer<MQTTBloc, MQTTState>(
+        child: BlocConsumer<WebSocketBloc, WebSocketState>(
           listener: (context, state) {
-            if (state is MQTTMacrosReceived) {
+            if (state is WebSocketMacrosReceived) {
               setState(() {
                 _macros = state.macros;
               });
-            } else if (state is MQTTMacrosEnded) {
+            } else if (state is WebSocketMacrosEnded) {
               print("Macro ended: ${state.macroName}");
               setState(() {
                 _runningMacroName = null;
@@ -90,7 +90,7 @@ class _MacrosState extends State<Macros> with RouteAware {
             }
           },
           builder: (context, state) {
-            if (state is MQTTMacrosReceived && _macros.isNotEmpty) {
+            if (state is WebSocketMacrosReceived && _macros.isNotEmpty) {
               return ListView.builder(
                 itemCount: _macros.length,
                 itemBuilder: (context, index) {
@@ -106,7 +106,7 @@ class _MacrosState extends State<Macros> with RouteAware {
                   );
                 },
               );
-            } else if (state is MQTTError) {
+            } else if (state is WebSocketError) {
               return Center(child: Text("Error: ${state.error}"));
             } else {
               return const Center(child: CircularProgressIndicator());

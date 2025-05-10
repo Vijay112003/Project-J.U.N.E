@@ -4,74 +4,74 @@ import 'package:pc_connect/Views/macros.dart';
 
 import '../../Models/status_model.dart';
 
-abstract class MQTTState extends Equatable {
-  const MQTTState();
+abstract class WebSocketState extends Equatable {
+  const WebSocketState();
 }
 
-class MQTTInitial extends MQTTState {
+class WebSocketInitial extends WebSocketState {
   @override
   List<Object> get props => [];
 }
 
-class MQTTConnected extends MQTTState {
+class WebSocketConnected extends WebSocketState {
   @override
   List<Object> get props => [];
 }
 
-class MQTTDisconnected extends MQTTState {
+class WebSocketDisconnected extends WebSocketState {
   @override
   List<Object> get props => [];
 }
 
-class MQTTError extends MQTTState {
+class WebSocketError extends WebSocketState {
   final String error;
 
-  MQTTError(this.error);
+  WebSocketError(this.error);
 
   @override
   List<Object> get props => [error];
 }
 
-class MQTTMacrosReceived extends MQTTState {
+class WebSocketMacrosReceived extends WebSocketState {
   final List<MacroModel> macros;
 
-  MQTTMacrosReceived(this.macros);
+  WebSocketMacrosReceived(this.macros);
 
   @override
   List<Object> get props => [macros];
 }
 
-class MQTTMacrosEnded extends MQTTState {
+class WebSocketMacrosEnded extends WebSocketState {
   final String macroName;
 
-  MQTTMacrosEnded(this.macroName);
+  WebSocketMacrosEnded(this.macroName);
 
   @override
   List<Object> get props => [macroName];
 }
 
-class MQTTTerminalReceived extends MQTTState {
+class WebSocketTerminalReceived extends WebSocketState {
   final String terminalOutput;
 
-  MQTTTerminalReceived(this.terminalOutput);
+  WebSocketTerminalReceived(this.terminalOutput);
 
   @override
   List<Object> get props => [terminalOutput];
 }
 
-class MQTTMessageReceived extends MQTTState {
+class WebSocketMessageReceived extends WebSocketState {
   final String message;
 
-  MQTTMessageReceived(this.message);
+  WebSocketMessageReceived(this.message);
 
   @override
   List<Object> get props => [message];
 }
 
-class MQTTStatusReceived extends MQTTState {
+class WebSocketStatusReceived extends WebSocketState {
   final StatusInfo statusInfo;
 
-  MQTTStatusReceived(this.statusInfo);
+  WebSocketStatusReceived(this.statusInfo);
 
   @override
   List<Object> get props => [statusInfo];

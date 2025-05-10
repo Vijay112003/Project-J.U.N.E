@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
 import 'package:pc_connect/Config/text_theme.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_bloc.dart';
-import 'package:pc_connect/Controller/mqtt_bloc/mqtt_state.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_bloc.dart';
+import 'package:pc_connect/Controller/websocket_bloc/websocket_state.dart';
 import 'package:pc_connect/Controller/terminal_bloc/terminal_bloc.dart';
 import 'package:pc_connect/Controller/terminal_bloc/terminal_event.dart';
 import 'package:pc_connect/Controller/terminal_bloc/terminal_state.dart';
@@ -158,9 +158,9 @@ class _TerminalState extends State<Terminal> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(_focusNode),
         child: SafeArea(
-          child: BlocListener<MQTTBloc, MQTTState>(
+          child: BlocListener<WebSocketBloc, WebSocketState>(
             listener: (context, state) {
-              if (state is MQTTTerminalReceived) {
+              if (state is WebSocketTerminalReceived) {
                 setState(() {
                   _terminalLines.add(state.terminalOutput); // Output
                   _terminalLines.add(""); // Blank line for spacing
