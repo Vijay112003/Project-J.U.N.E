@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:pc_connect/Models/message_model.dart';
+import 'package:pc_connect/Services/sharedpreference_helper.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketHelper {
@@ -9,22 +12,28 @@ class WebSocketHelper {
     _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
     print('✅ WebSocket connected to $wsUrl');
 
-    // Register once connected
-    final registerPayload = jsonEncode({
-      "type": "register",
-      "token":
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTcyYTY5OGE3Yzg3ZTY2NjIxNjAzZCIsImVtYWlsIjoidGhlamVzaGJoYWdhdmFudGhAZ21haWwuY29tIiwiaWF0IjoxNzQ2MzQ5MjgyLCJleHAiOjE3NDY5NTQwODJ9.bAxsJ3krmvqXBh5UdpGhM4LzKLHMa7npukfNfHR6kpI",
-      "role": "mobile",
+    // Use shared preferences to get the token
+    SharedPreferenceHelper.getAccessToken().then((token) {
+      if (token != null) {
+        // Register once token is available
+        final registerPayload = jsonEncode({
+          "type": "register",
+          "token": token,
+          "role": "mobile",
+        });
+
+        _channel?.sink.add(registerPayload);
+        print('🔐 Register payload sent with token: $token');
+      } else {
+        print('❌ No token found in SharedPreferences');
+      }
+    }).catchError((error) {
+      print('❌ Error retrieving token: $error');
     });
-    _channel?.sink.add(registerPayload);
-    print('🔐 Register payload sent');
   }
 
-  static void sendMessage(String type, dynamic payload) {
-    final message = jsonEncode({
-      "type": type,
-      "payload": payload,
-    });
+  static void sendMessage(SendMessageModel msg) {
+    final message = jsonEncode(msg.toJson());
     _channel?.sink.add(message);
     print('📤 Message sent: $message');
   }
@@ -32,10 +41,22 @@ class WebSocketHelper {
   static void listen(void Function(String) onMessage) {
     _channel?.stream.listen(
           (data) {
-        if (data is String) {
-          onMessage(data);
-        } else {
-          print("⚠️ Received non-string data");
+        try {
+          String message;
+
+          if (data is String) {
+            message = data;
+          } else if (data is Uint8List) {
+            message = utf8.decode(data);
+          } else {
+            print("⚠️ Unsupported data type received: ${data.runtimeType}");
+            return;
+          }
+
+          print("📥 Decoded Message: $message");
+          onMessage(message);
+        } catch (e) {
+          print("❌ Error decoding WebSocket message: $e");
         }
       },
       onDone: () => print("❌ WebSocket closed"),
