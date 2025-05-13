@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:pc_connect/Components/_homeComponents.dart';
+import 'package:pc_connect/Models/message_model.dart';
 import 'package:pc_connect/Views/home.dart';
 import 'package:pc_connect/Views/login.dart';
 import 'package:pc_connect/Views/macros.dart';
 import 'package:pc_connect/Views/terminal.dart';
+
+import '../Services/websocket_service.dart';
 
 class BottomNavBar extends StatefulWidget {
   @override
@@ -42,8 +45,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
           : VoiceButton(
         onVoiceCommand: (text) {
           print("Sending voice command: $text");
-          // WebSocketHelper.sendMessage(
-          //     'SENDER', '{"type": "voice", "text": "$text"}');
+          final SendMessageModel model = SendMessageModel(
+            type: "voice",
+            text: text,
+          );
+          WebSocketHelper.sendMessage(model);
         },
       ),
 
