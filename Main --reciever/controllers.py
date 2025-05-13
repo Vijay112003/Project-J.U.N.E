@@ -78,55 +78,152 @@ def get_macro_info():
 def process_action(payload):
     try:
         data = json.loads(payload)
-        
-        if data.get("action") == "get_macro":
+        type_ = data.get("type")
+
+        if type_ == "status":
+            status_info = get_current_status()
+            return {
+                "type": "status",
+                "data": status_info
+            }
+
+        elif type_ == "macro" and data.get("action") == "get_macro":
             info = get_macro_info()
-            print(f"Macro info: {info}")
-            return info
-        
-        if data.get("type") == "manual":
+            if "error" in info:
+                return {
+                    "type": "error",
+                    "message": info["error"]
+                }
+            return {
+                "type": "macro",
+                "data": info
+            }
+
+        elif type_ == "manual":
             module = data.get("module")
             action = data.get("action")
+            value = data.get("value")
 
             if module == "brightness" and action == "set":
-                value = data.get("value", 50)
                 threading.Thread(target=threaded_brightness_control, args=(value,)).start()
-                return {"message": f"Brightness set to {value}"}
+                return {
+                    "type": "manual",
+                    "data": {
+                        "message": f"Brightness set to {value}"
+                    }
+                }
 
             elif module == "volume" and action == "set":
-                return {"message": Volume.set_volume(int(data.get("value", 50)))}
+                message = Volume.set_volume(int(value))
+                return {
+                    "type": "manual",
+                    "data": {
+                        "message": message
+                    }
+                }
 
             elif module == "power" and action == "toggle":
-                return toggle_power()
+                power_message = Power.toggle_power()
+                return {
+                    "type": "manual",
+                    "data": {
+                        "message": power_message
+                    }
+                }
 
             elif module == "lock" and action == "toggle":
                 lock_computer()
-                return {"message": "Computer locked"}
+                return {
+                    "type": "manual",
+                    "data": {
+                        "message": "Computer locked"
+                    }
+                }
 
             elif module == "wifi" and action == "toggle":
-                return toggle_wifi()
+                wifi_message = WiFi.toggle_wifi()
+                return {
+                    "type": "manual",
+                    "data": {
+                        "message": wifi_message
+                    }
+                }
 
             elif module == "bluetooth" and action == "toggle":
-                return toggle_bluetooth()
+                bt_message = Bluetooth.toggle_bluetooth()
+                return {
+                    "type": "manual",
+                    "data": {
+                        "message": bt_message
+                    }
+                }
 
-        elif data.get("type") == "macro":
-            filenm = data.get("filepath", "")
+            else:
+                return {
+                    "type": "error",
+                    "message": f"Unsupported manual module/action: {module}/{action}"
+                }
+
+        elif type_ == "macro":
+            filenm = data.get("filepath")
+            if not filenm:
+                return {
+                    "type": "error",
+                    "message": "Filepath not provided for macro"
+                }
             threading.Thread(target=threaded_macro_execution, args=(filenm,)).start()
-            return {"message": f"Executing macro {data.get('id')}"}
+            return {
+                "type": "macro",
+                "data": {
+                    "message": f"Executing macro from {filenm}"
+                }
+            }
 
-        elif data.get("type") == "voice":
-            text = data.get("text", "").lower()
-            GOOGLE_API_KEY = "AIzaSyCPwuJF0lbcGGLPTwwcp02Hg_plqPJGHQc"
-            generator = BatchScriptGenerator(api_key=GOOGLE_API_KEY)
+        elif type_ == "voice":
+            text = data.get("text", "").strip()
+            if not text:
+                return {
+                    "type": "error",
+                    "message": "Voice command text is missing"
+                }
+            generator = BatchScriptGenerator(api_key="AIzaSyCPwuJF0lbcGGLPTwwcp02Hg_plqPJGHQc")
             generator.process(text)
-            return {"message": "Voice command executed successfully"}
+            return {
+                "type": "voice",
+                "data": {
+                    "message": "Voice command executed successfully"
+                }
+            }
 
-        elif data.get("type") == "terminal":
-            command = data.get("text", "")
-            if command:
-                return {"terminal" : terminal.execute_command(command)}
-            return {"terminal_error": "Empty command"}
+        elif type_ == "terminal":
+            command = data.get("text", "").strip()
+            if not command:
+                return {
+                    "type": "error",
+                    "message": "Terminal command is empty"
+                }
+            output = terminal.execute_command(command)
+            return {
+                "type": "terminal",
+                "data": {
+                    "output": output
+                }
+            }
 
-        return {"error": "Unknown command"}
+        else:
+            return {
+                "type": "error",
+                "message": "Unknown type or unsupported action"
+            }
+
     except json.JSONDecodeError:
-        return {"error": "Invalid JSON format"}
+        return {
+            "type": "error",
+            "message": "Invalid JSON format"
+        }
+
+    except Exception as e:
+        return {
+            "type": "error",
+            "message": str(e)
+        }

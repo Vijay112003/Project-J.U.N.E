@@ -66,23 +66,16 @@ from controllers import get_current_status, process_action
 # Settings
 WS_URL = "wss://june-backend-fckl.onrender.com"  # Use your actual relay server URL
 
-USER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTcyYTY5OGE3Yzg3ZTY2NjIxNjAzZCIsImVtYWlsIjoidGhlamVzaGJoYWdhdmFudGhAZ21haWwuY29tIiwiaWF0IjoxNzQ2MzQ5MjgyLCJleHAiOjE3NDY5NTQwODJ9.bAxsJ3krmvqXBh5UdpGhM4LzKLHMa7npukfNfHR6kpI"  # Same token used on mobile
+USER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MjJkZjZkOGFmNTdmOWZiNzM1YzUwYyIsImVtYWlsIjoic3BpZGV5c3VuZGFyMjAwNEBnbWFpbC5jb20iLCJpYXQiOjE3NDcxMTU5MjgsImV4cCI6MTc0NzcyMDcyOH0.B45jTfiAC4UUFuBcufCkbYpCCeFhK_4mqYm-bXqlr54"  # Same token used on mobile
 ROLE = "pc"  # This client acts as the PC
 
 def on_message(ws, message):
     print(f"Received: {message}")
     data = message.strip().lower()
-
-    if data == "status":
-        status_info = get_current_status()
-        status_message = json.dumps({ "type": "status", "status": status_info })
-        ws.send(status_message)
-        print(f"Sent status: {status_message}")
-    else:
-        result = process_action(data)
-        response = json.dumps(result)
-        ws.send(response)
-        print(f"Sent response: {response}")
+    result = process_action(data)
+    response = json.dumps(result)
+    ws.send(response)
+    print(f"Sent response: {response}")
 
 def on_open(ws):
     print("WebSocket connection opened")
