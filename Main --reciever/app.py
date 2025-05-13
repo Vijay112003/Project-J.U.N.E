@@ -62,12 +62,24 @@ import websocket
 import json
 import threading
 from controllers import get_current_status, process_action
+from auth.login import LoginInterface
+import tkinter as tk
+import sys
+import signal
 
 # Settings
+<<<<<<< HEAD
 WS_URL = "wss://june-backend-fckl.onrender.com"  # Use your actual relay server URL
 
 USER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MjJkZjZkOGFmNTdmOWZiNzM1YzUwYyIsImVtYWlsIjoic3BpZGV5c3VuZGFyMjAwNEBnbWFpbC5jb20iLCJpYXQiOjE3NDcxMTU5MjgsImV4cCI6MTc0NzcyMDcyOH0.B45jTfiAC4UUFuBcufCkbYpCCeFhK_4mqYm-bXqlr54"  # Same token used on mobile
 ROLE = "pc"  # This client acts as the PC
+=======
+WS_URL = "wss://june-backend-fckl.onrender.com"
+ROLE = "pc"
+USER_TOKEN = None
+ws_app = None
+ws_thread = None
+>>>>>>> 58816b56170027f08d0ceb7e6632fb945f7f67f9
 
 def on_message(ws, message):
     print(f"Received: {message}")
@@ -93,16 +105,47 @@ def on_close(ws, close_status_code, close_msg):
 def on_error(ws, error):
     print(f"WebSocket error: {error}")
 
-# Create and run the WebSocket connection
 def run_ws():
-    ws = websocket.WebSocketApp(
+    global ws_app
+    ws_app = websocket.WebSocketApp(
         WS_URL,
         on_open=on_open,
         on_message=on_message,
         on_error=on_error,
         on_close=on_close
     )
-    ws.run_forever()
+    ws_app.run_forever()
 
-# Run in a thread so it doesn't block
-threading.Thread(target=run_ws).start()
+def start_application(token):
+    print("Login successful! Starting application...")
+    global USER_TOKEN, ws_thread
+    USER_TOKEN = token
+    ws_thread = threading.Thread(target=run_ws)
+    ws_thread.daemon = True
+    ws_thread.start()
+
+def signal_handler(sig, frame):
+    global ws_app, ws_thread
+    print("\nShutting down gracefully...")
+    if ws_app:
+        ws_app.close()
+    if ws_thread and ws_thread.is_alive():
+        ws_thread.join(timeout=1)
+    sys.exit(0)
+
+def main():
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    root = tk.Tk()
+    root.withdraw()  # Hide the default tkinter window
+    
+    try:
+        login = LoginInterface(on_login_success=start_application)
+        login.run()
+    except SystemExit:
+        if root and root.winfo_exists():
+            root.destroy()
+        signal_handler(signal.SIGINT, None) 
+
+if __name__ == "__main__":
+    main()
