@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pc_connect/Controller/login_bloc/login_bloc.dart';
 import 'package:pc_connect/Controller/macro_bloc/macro_bloc.dart';
 import 'package:pc_connect/Controller/manual_bloc/manual_bloc.dart';
 import 'package:pc_connect/Controller/terminal_bloc/terminal_bloc.dart';
 import 'package:pc_connect/Controller/websocket_bloc/websocket_bloc.dart';
 import 'package:pc_connect/Controller/websocket_bloc/websocket_event.dart';
+import 'package:pc_connect/Views/login.dart';
+import 'package:pc_connect/Views/splash.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'Components/bottom_nav_bar.dart';
 import 'Services/app_bloc_observer.dart';
@@ -23,6 +26,7 @@ void main() {
   requestMicrophonePermission();
   Bloc.observer = AppBlocObserver();  // Ensure this observer is set
   runApp(MultiBlocProvider(providers: [
+    BlocProvider(create: (_) => LoginBloc()),
     BlocProvider(create: (_) => WebSocketBloc()..add(WebSocketConnect())),
     BlocProvider(create: (_) => ManualBloc()),
     BlocProvider(create: (_) => MacroBloc()),
@@ -42,6 +46,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: BottomNavBar());
+        home: SplashScreen());
   }
 }

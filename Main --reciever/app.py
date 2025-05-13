@@ -68,18 +68,11 @@ import sys
 import signal
 
 # Settings
-<<<<<<< HEAD
-WS_URL = "wss://june-backend-fckl.onrender.com"  # Use your actual relay server URL
-
-USER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MjJkZjZkOGFmNTdmOWZiNzM1YzUwYyIsImVtYWlsIjoic3BpZGV5c3VuZGFyMjAwNEBnbWFpbC5jb20iLCJpYXQiOjE3NDcxMTU5MjgsImV4cCI6MTc0NzcyMDcyOH0.B45jTfiAC4UUFuBcufCkbYpCCeFhK_4mqYm-bXqlr54"  # Same token used on mobile
-ROLE = "pc"  # This client acts as the PC
-=======
 WS_URL = "wss://june-backend-fckl.onrender.com"
 ROLE = "pc"
 USER_TOKEN = None
 ws_app = None
 ws_thread = None
->>>>>>> 58816b56170027f08d0ceb7e6632fb945f7f67f9
 
 def on_message(ws, message):
     print(f"Received: {message}")

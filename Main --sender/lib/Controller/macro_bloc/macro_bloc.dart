@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pc_connect/Models/message_model.dart';
 import 'package:pc_connect/Services/websocket_service.dart';
 
 import 'macro_event.dart';
@@ -12,11 +13,20 @@ class MacroBloc extends Bloc<MacroEvent, MacroState> {
 
   Future<void> _onRequestMacros(
       RequestMacros event, Emitter<MacroState> emit) async {
-    WebSocketHelper.sendMessage('SENDER', '{"action":"get_macro"}');
+    final SendMessageModel message = SendMessageModel(
+      type: 'macro',
+      action: 'get_macro',
+    );
+    WebSocketHelper.sendMessage(message);
   }
 
   Future<void> _onRunMacro(RunMacro event, Emitter<MacroState> emit) async {
     final jsonPath = event.jsonPath;
-    WebSocketHelper.sendMessage('SENDER', '{"type": "macro", "filepath": "$jsonPath"}');
+    final SendMessageModel message = SendMessageModel(
+      type: 'macro',
+      filepath: jsonPath,
+      action: 'run_macro',
+    );
+    WebSocketHelper.sendMessage(message);
   }
 }

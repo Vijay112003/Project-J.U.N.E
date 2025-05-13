@@ -2,22 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:pc_connect/Components/_homeComponents.dart';
 import 'package:pc_connect/Views/home.dart';
+import 'package:pc_connect/Views/login.dart';
 import 'package:pc_connect/Views/macros.dart';
 import 'package:pc_connect/Views/terminal.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BottomNavBar(),
-    );
-  }
-}
 
 class BottomNavBar extends StatefulWidget {
   @override

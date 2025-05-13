@@ -50,28 +50,64 @@ class WebSocketBloc extends Bloc<WebSocketEvent, WebSocketState> {
 
   Future<void> _onNewMessage(WebSocketNewMessage event, Emitter<WebSocketState> emit) async {
     try {
+      print("🧩 Received raw message: ${event.payload}");
       final Map<String, dynamic> jsonData = jsonDecode(event.payload);
 
-      if (jsonData.containsKey("status") && jsonData["status"] is Map<String, dynamic>) {
-        final statusInfo = StatusInfo.fromJson(jsonData["status"]);
-        emit(WebSocketStatusReceived(statusInfo));
-      } else if (jsonData.containsKey("message") && jsonData["message"] is String) {
-        emit(WebSocketMessageReceived(jsonData["message"]));
-      } else if (jsonData.containsKey("error") && jsonData["error"] is String) {
-        emit(WebSocketError(jsonData["error"]));
-      } else if (jsonData.containsKey("macros") && jsonData["macros"] is List) {
-        final List<MacroModel> macros = (jsonData["macros"] as List)
-            .map((e) => MacroModel.fromJson(e))
-            .toList();
-        emit(WebSocketMacrosReceived(macros));
-      } else if (jsonData.containsKey("macro_end") && jsonData["macro_end"] is String) {
-        emit(WebSocketMacrosEnded(jsonData["macro_end"]));
-      } else if (jsonData.containsKey("terminal") && jsonData["terminal"] is String) {
-        emit(WebSocketTerminalReceived(jsonData["terminal"]));
-      } else if (jsonData.containsKey("type") && jsonData["type"] == "command") {
-        emit(WebSocketMessageReceived(jsonData["command"]));
-      } else {
-        emit(WebSocketError("Invalid message format"));
+      final type = jsonData["type"];
+      final data = jsonData["data"];
+      final message = jsonData["message"];
+
+      switch (type) {
+        case "status":
+          if (data is Map<String, dynamic>) {
+            final statusInfo = StatusInfo.fromJson(data);
+            emit(WebSocketStatusReceived(statusInfo));
+          } else {
+            emit(WebSocketError("Invalid status data format"));
+          }
+          break;
+
+        case "manual":
+          if (data is Map && data["message"] is String) {
+            emit(WebSocketMessageReceived(data["message"]));
+          } else {
+            emit(WebSocketError("Invalid manual message format"));
+          }
+          break;
+
+        case "macro":
+          if (data is Map && data["macros"] is List) {
+            final macros = (data["macros"] as List)
+                .map((e) => MacroModel.fromJson(e))
+                .toList();
+            emit(WebSocketMacrosReceived(macros));
+          } else {
+            emit(WebSocketError("Invalid macro data format"));
+          }
+          break;
+
+        case "terminal":
+          if (data is Map && data["output"] is String) {
+            emit(WebSocketTerminalReceived(data["output"]));
+          } else {
+            emit(WebSocketError("Invalid terminal output format"));
+          }
+          break;
+
+        case "command":
+          if (jsonData["command"] is String) {
+            emit(WebSocketMessageReceived(jsonData["command"]));
+          } else {
+            emit(WebSocketError("Invalid command format"));
+          }
+          break;
+
+        case "error":
+          emit(WebSocketError(message ?? "Unknown error occurred"));
+          break;
+
+        default:
+          emit(WebSocketError("Unknown message type: $type"));
       }
     } catch (e) {
       emit(WebSocketError("Error parsing WebSocket message: $e"));
