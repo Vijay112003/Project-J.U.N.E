@@ -63,6 +63,7 @@ import json
 import threading
 from controllers import get_current_status, process_action
 from auth.login import LoginInterface
+from ui.log_display import LogDisplay
 import tkinter as tk
 import sys
 import signal
@@ -112,10 +113,13 @@ def run_ws():
 def start_application(token):
     print("Login successful! Starting application...")
     global USER_TOKEN, ws_thread
+    log_window = LogDisplay()
     USER_TOKEN = token
     ws_thread = threading.Thread(target=run_ws)
     ws_thread.daemon = True
     ws_thread.start()
+    log_window.mainloop()
+
 
 def signal_handler(sig, frame):
     global ws_app, ws_thread
@@ -130,15 +134,16 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     
     root = tk.Tk()
-    root.withdraw()  # Hide the default tkinter window
+    root.withdraw()  # Hide the root window but keep it as parent
     
     try:
-        login = LoginInterface(on_login_success=start_application)
-        login.run()
+        login = LoginInterface(parent=root, on_login_success=start_application)
+        if not login.check_existing_token():  # Only run if no valid token
+            login.run()
     except SystemExit:
         if root and root.winfo_exists():
             root.destroy()
-        signal_handler(signal.SIGINT, None) 
+        signal_handler(signal.SIGINT, None)
 
 if __name__ == "__main__":
     main()

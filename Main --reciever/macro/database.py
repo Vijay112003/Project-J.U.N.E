@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "macro_data.db")
+DB_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "june.db")
 
 def init_db():
     """Initialize the database and create macros table if not exists."""

@@ -1,0 +1,63 @@
+[
+    {
+        "type": "mouse_down",
+        "x": 1055,
+        "y": 439,
+        "button": "Button.left",
+        "time": 3.957453727722168
+    },
+    {
+        "type": "mouse_up",
+        "x": 1055,
+        "y": 439,
+        "button": "Button.left",
+        "time": 4.05254864692688
+    },
+    {
+        "type": "mouse_down",
+        "x": 1055,
+        "y": 444,
+        "button": "Button.left",
+        "time": 6.260049819946289
+    },
+    {
+        "type": "mouse_up",
+        "x": 1055,
+        "y": 444,
+        "button": "Button.left",
+        "time": 6.3453967571258545
+    },
+    {
+        "type": "mouse_down",
+        "x": 1055,
+        "y": 444,
+        "button": "Button.left",
+        "time": 6.942193269729614
+    },
+    {
+        "type": "mouse_up",
+        "x": 1055,
+        "y": 444,
+        "button": "Button.left",
+        "time": 7.018397808074951
+    },
+    {
+        "type": "mouse_down",
+        "x": 1055,
+        "y": 444,
+        "button": "Button.left",
+        "time": 7.583251714706421
+    },
+    {
+        "type": "mouse_up",
+        "x": 1055,
+        "y": 444,
+        "button": "Button.left",
+        "time": 7.659692049026489
+    },
+    {
+        "type": "key_press",
+        "key": "Key.esc",
+        "time": 11.82196044921875
+    }
+]
