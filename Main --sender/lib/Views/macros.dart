@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:pc_connect/Config/text_theme.dart';
-import 'package:pc_connect/Controller/macro_bloc/macro_bloc.dart';
-import 'package:pc_connect/Controller/macro_bloc/macro_event.dart';
-import 'package:pc_connect/Controller/websocket_bloc/websocket_bloc.dart';
-import 'package:pc_connect/Controller/websocket_bloc/websocket_state.dart';
-import 'package:pc_connect/Models/macro_models.dart';
-import 'package:pc_connect/main.dart';
+import 'package:mobizync/Config/text_theme.dart';
+import 'package:mobizync/Controller/macro_bloc/macro_bloc.dart';
+import 'package:mobizync/Controller/macro_bloc/macro_event.dart';
+import 'package:mobizync/Controller/websocket_bloc/websocket_bloc.dart';
+import 'package:mobizync/Controller/websocket_bloc/websocket_state.dart';
+import 'package:mobizync/Models/macro_models.dart';
+import 'package:mobizync/main.dart';
 
 class Macros extends StatefulWidget {
   const Macros({super.key});

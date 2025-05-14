@@ -1,4 +1,4 @@
-package com.example.pc_connect
+package com.mobizync.mobizync
 
 import io.flutter.embedding.android.FlutterActivity
 

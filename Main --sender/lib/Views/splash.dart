@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:pc_connect/Components/bottom_nav_bar.dart';
-import 'package:pc_connect/Config/text_theme.dart';
-import 'package:pc_connect/Controller/login_bloc/login_bloc.dart';
-import 'package:pc_connect/Controller/login_bloc/login_state.dart';
-import 'package:pc_connect/Controller/login_bloc/login_event.dart';
-import 'package:pc_connect/Views/login.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mobizync/Components/bottom_nav_bar.dart';
+import 'package:mobizync/Config/text_theme.dart';
+import 'package:mobizync/Controller/login_bloc/login_bloc.dart';
+import 'package:mobizync/Controller/login_bloc/login_state.dart';
+import 'package:mobizync/Controller/login_bloc/login_event.dart';
+import 'package:mobizync/Views/login.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -49,12 +50,18 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               const SizedBox(height: 12),
               SizedBox(
-                width: 200,
-                height: 200,
-                child: Image.asset(
-                  'assets/images/ld_logo.png',
-                  fit: BoxFit.cover,
+                child: Lottie.asset(
+                  'assets/lottie/splash.json',
+                  fit: BoxFit.fill,
                 ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("MobiZync", style: MyTextTheme.headline),
+                  Text("Your Smart Companion for Voice-Driven PC Control", style: MyTextTheme.normal, textAlign: TextAlign.center),
+                ],
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,

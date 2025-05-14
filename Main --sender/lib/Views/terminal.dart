@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 
-import 'package:pc_connect/Config/text_theme.dart';
-import 'package:pc_connect/Controller/websocket_bloc/websocket_bloc.dart';
-import 'package:pc_connect/Controller/websocket_bloc/websocket_state.dart';
-import 'package:pc_connect/Controller/terminal_bloc/terminal_bloc.dart';
-import 'package:pc_connect/Controller/terminal_bloc/terminal_event.dart';
-import 'package:pc_connect/Controller/terminal_bloc/terminal_state.dart';
+import 'package:mobizync/Config/text_theme.dart';
+import 'package:mobizync/Controller/websocket_bloc/websocket_bloc.dart';
+import 'package:mobizync/Controller/websocket_bloc/websocket_state.dart';
+import 'package:mobizync/Controller/terminal_bloc/terminal_bloc.dart';
+import 'package:mobizync/Controller/terminal_bloc/terminal_event.dart';
+import 'package:mobizync/Controller/terminal_bloc/terminal_state.dart';
 
 class Terminal extends StatefulWidget {
   const Terminal({super.key});

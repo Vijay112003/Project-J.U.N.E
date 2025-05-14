@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pc_connect/Models/message_model.dart';
-import 'package:pc_connect/Services/websocket_service.dart';
+import 'package:mobizync/Models/message_model.dart';
+import 'package:mobizync/Services/websocket_service.dart';
 
 import 'macro_event.dart';
 import 'macro_state.dart';

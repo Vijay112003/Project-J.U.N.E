@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pc_connect/Controller/manual_bloc/manual_event.dart';
-import 'package:pc_connect/Controller/manual_bloc/manual_state.dart';
-import 'package:pc_connect/Models/message_model.dart';
-import 'package:pc_connect/Services/websocket_service.dart';
+import 'package:mobizync/Controller/manual_bloc/manual_event.dart';
+import 'package:mobizync/Controller/manual_bloc/manual_state.dart';
+import 'package:mobizync/Models/message_model.dart';
+import 'package:mobizync/Services/websocket_service.dart';
 
 class ManualBloc extends Bloc<ManualEvent, ManualState> {
   ManualBloc() : super(ManualInitial()) {

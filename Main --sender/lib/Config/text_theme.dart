@@ -5,20 +5,20 @@ class MyTextTheme {
 
 
   static const TextStyle headline = TextStyle(
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: FontWeight.bold,
     color: Colors.black,
     fontFamily: fontFamily,
   );
 
   static const TextStyle subheading = TextStyle(
-    fontSize: 16,
+    fontSize: 18,
     color: Colors.black,
     fontFamily: fontFamily,
   );
 
   static const TextStyle body = TextStyle(
-    fontSize: 14,
+    fontSize: 16,
     color: Colors.black,
     fontFamily: fontFamily,
   );
