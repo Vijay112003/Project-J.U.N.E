@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pc_connect/Services/sharedpreference_helper.dart';
+import 'package:mobizync/Services/sharedpreference_helper.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 

@@ -1,4 +1,4 @@
-# pc_connect
+# mobizync
 
 A new Flutter project.
 

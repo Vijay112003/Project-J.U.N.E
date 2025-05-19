@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:pc_connect/Config/text_theme.dart';
+import 'package:mobizync/Config/text_theme.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../Controller/manual_bloc/manual_bloc.dart';
 import '../Controller/manual_bloc/manual_event.dart';

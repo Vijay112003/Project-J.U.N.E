@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:bloc/bloc.dart';
-import 'package:pc_connect/Models/macro_models.dart';
-import 'package:pc_connect/Services/websocket_service.dart';
+import 'package:mobizync/Models/macro_models.dart';
+import 'package:mobizync/Services/websocket_service.dart';
 import '../../Models/status_model.dart';
 import 'websocket_event.dart';
 import 'websocket_state.dart';

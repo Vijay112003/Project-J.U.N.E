@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:pc_connect/Models/macro_models.dart';
-import 'package:pc_connect/Views/macros.dart';
+import 'package:mobizync/Models/macro_models.dart';
+import 'package:mobizync/Views/macros.dart';
 
 import '../../Models/status_model.dart';
 

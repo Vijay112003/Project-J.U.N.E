@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:pc_connect/Models/message_model.dart';
-import 'package:pc_connect/Services/sharedpreference_helper.dart';
+import 'package:mobizync/Models/message_model.dart';
+import 'package:mobizync/Services/sharedpreference_helper.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketHelper {
@@ -39,8 +39,7 @@ class WebSocketHelper {
   }
 
   static void listen(void Function(String) onMessage) {
-    _channel?.stream.listen(
-          (data) {
+    _channel?.stream.listen((data) {
         try {
           String message;
 
