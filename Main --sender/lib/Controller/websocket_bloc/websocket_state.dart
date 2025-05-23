@@ -32,6 +32,15 @@ class WebSocketError extends WebSocketState {
   List<Object> get props => [error];
 }
 
+class WebSocketScreenFrameReceived extends WebSocketState {
+  final String screenFrame;
+
+  WebSocketScreenFrameReceived(this.screenFrame);
+
+  @override
+  List<Object> get props => [screenFrame];
+}
+
 class WebSocketMacrosReceived extends WebSocketState {
   final List<MacroModel> macros;
 

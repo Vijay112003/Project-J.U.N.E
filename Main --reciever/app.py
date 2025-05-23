@@ -57,7 +57,6 @@
 # print(f"Subscribed to {TOPIC_SUBSCRIBE}")
 # client.loop_forever()
 
-
 import websocket
 import json
 import threading
@@ -67,6 +66,11 @@ from ui.log_display import LogDisplay
 import tkinter as tk
 import sys
 import signal
+import base64
+import time
+import mss
+import cv2
+import numpy as np
 
 # Settings
 WS_URL = "wss://june-backend-fckl.onrender.com"
@@ -92,6 +96,21 @@ def on_open(ws):
     })
     ws.send(register_msg)
     print(f"Sent register message: {register_msg}")
+    # threading.Thread(target=stream_screen, args=(ws,), daemon=True).start()
+
+def stream_screen(ws):
+    with mss.mss() as sct:
+        monitor = sct.monitors[1]
+        while True:
+            img = np.array(sct.grab(monitor))
+            frame = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+            _, jpeg = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
+            b64_image = base64.b64encode(jpeg).decode('utf-8')
+            ws.send(json.dumps({
+                "type": "screen_frame",
+                "data": b64_image
+            }))
+            time.sleep(0.1)  # ~10 FPS
 
 def on_close(ws, close_status_code, close_msg):
     print("WebSocket connection closed")

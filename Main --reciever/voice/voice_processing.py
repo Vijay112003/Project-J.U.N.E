@@ -1,6 +1,5 @@
 import os
 import re
-
 import subprocess
 import google.generativeai as genai
 
@@ -8,8 +7,8 @@ class BatchScriptGenerator:
     def __init__(self, api_key):
         self.api_key = api_key
         os.environ["GEMINI_API_KEY"] = self.api_key
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel("gemini-1.5-pro-latest")
+        genai.configure(api_key="AIzaSyCBMRgHOu78rGbo5RkD42PFhY0nb6BTtOI")
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
     
     def extract_commands(self, text):
         command_pattern = re.compile(r'```batch\n(.*?)\n```', re.DOTALL)

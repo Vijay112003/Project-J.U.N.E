@@ -58,6 +58,14 @@ class WebSocketBloc extends Bloc<WebSocketEvent, WebSocketState> {
       final message = jsonData["message"];
 
       switch (type) {
+        case "screen_frame":
+          if (data is Map && data["frame"] is String) {
+            emit(WebSocketScreenFrameReceived(data["frame"]));
+          } else {
+            emit(WebSocketError("Invalid screen frame data format"));
+          }
+          break;
+
         case "status":
           if (data is Map<String, dynamic>) {
             final statusInfo = StatusInfo.fromJson(data);

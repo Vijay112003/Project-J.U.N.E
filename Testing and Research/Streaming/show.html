@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Screen Viewer</title>
+  <style>
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #333;
+      margin-top: 10px;
+    }
+    body {
+      font-family: sans-serif;
+      padding: 10px;
+    }
+    #log {
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 5px;
+      height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 Mobile WebSocket Client</h1>
+  <button onclick="connect()">Connect</button>
+  <button onclick="sendMessage()">Send Brightness Command</button>
+  <pre id="log"></pre>
+  <img id="screen" src="" alt="Live screen will appear here" />
+
+  <script>
+    let socket;
+
+    function log(msg) {
+      const logEl = document.getElementById("log");
+      logEl.textContent += msg + "\n";
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function connect() {
+      socket = new WebSocket("wss://june-backend-fckl.onrender.com");
+
+      socket.onopen = () => {
+        log("✅ Connected");
+        socket.send(JSON.stringify({
+          type: "register",
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTcyYTY5OGE3Yzg3ZTY2NjIxNjAzZCIsImVtYWlsIjoidGhlamVzaGJoYWdhdmFudGhAZ21haWwuY29tIiwiaWF0IjoxNzQ3MTA5OTA1LCJleHAiOjE3NDc3MTQ3MDV9.Ii3j9ayHwZThqerZiV_-7CS7M8cuRUrJqYPniU61P1A",
+          role: "mobile" 
+        }));
+      };
+
+      socket.onmessage = (event) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (data.type === "screen_frame" && data.data) {
+              document.getElementById("screen").src = "data:image/jpeg;base64," + data.data;
+            } else {
+              log("📩 " + JSON.stringify(data));
+            }
+          } catch (e) {
+            log("⚠️ Invalid JSON: " + reader.result);
+          }
+        };
+        reader.readAsText(event.data);
+      };
+
+      socket.onclose = () => log("❌ Disconnected");
+      socket.onerror = () => log("⚠️ WebSocket error");
+    }
+
+    function sendMessage() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: "manual",
+          module: "brightness",
+          action: "set",
+          value: 10
+        }));
+        log("📤 Sent brightness command");
+      } else {
+        log("⚠️ WebSocket not open");
+      }
+    }
+  </script>
+</body>
+</html>
