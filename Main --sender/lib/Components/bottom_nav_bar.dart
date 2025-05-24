@@ -42,15 +42,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
       floatingActionButton: isKeyboardOpen
           ? null
           : VoiceButton(
-        onVoiceCommand: (text) {
-          print("Sending voice command: $text");
-          final SendMessageModel model = SendMessageModel(
-            type: "voice",
-            text: text,
-          );
-          WebSocketHelper.sendMessage(model);
-        },
-      ),
+              onVoiceCommand: (text) {
+                print("Sending voice command: $text");
+                final SendMessageModel model = SendMessageModel(
+                  type: "voice",
+                  text: text,
+                );
+                WebSocketHelper.sendMessage(model);
+              },
+            ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 

@@ -47,5 +47,31 @@ class ToggleBluetooth extends ManualEvent {
   List<Object> get props => [];
 }
 
+class MoveMouse extends ManualEvent {
+  final int dx;
+  final int dy;
+  final int speed;
 
+  MoveMouse(this.dx, this.dy, this.speed);
 
+  @override
+  List<Object> get props => [dx, dy, speed];
+}
+
+class MouseClick extends ManualEvent {
+  final String button;
+
+  MouseClick(this.button);
+
+  @override
+  List<Object> get props => [button];
+}
+
+class ApplicationLaunch extends ManualEvent {
+  final String appName;
+
+  ApplicationLaunch(this.appName);
+
+  @override
+  List<Object> get props => [appName];
+}

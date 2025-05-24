@@ -2,12 +2,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
 import 'package:mobizync/Config/text_theme.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../Controller/manual_bloc/manual_bloc.dart';
 import '../Controller/manual_bloc/manual_event.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class RoundedButton extends StatelessWidget {
   final IconData icon;
@@ -379,9 +380,7 @@ class _VoiceButtonState extends State<VoiceButton> {
 }
 
 class TrackPadWidget extends StatefulWidget {
-  final void Function(Map<String, dynamic> data)? onGesture;
-
-  const TrackPadWidget({super.key, this.onGesture});
+  const TrackPadWidget({super.key});
 
   @override
   State<TrackPadWidget> createState() => _TrackPadWidgetState();
@@ -391,60 +390,296 @@ class _TrackPadWidgetState extends State<TrackPadWidget> {
   Offset? previousPosition;
   DateTime? lastTime;
 
-  void _onPanStart(DragStartDetails details) {
-    previousPosition = details.localPosition;
-    lastTime = DateTime.now();
-  }
-
-  void _onPanUpdate(DragUpdateDetails details) {
-    final currentPosition = details.localPosition;
+  void _handlePointerMove(PointerMoveEvent event) {
+    final currentPosition = event.localPosition;
     final currentTime = DateTime.now();
 
-    final dx = currentPosition.dx - (previousPosition?.dx ?? 0);
-    final dy = currentPosition.dy - (previousPosition?.dy ?? 0);
-    final duration =
-        currentTime.difference(lastTime ?? currentTime).inMilliseconds;
+    final dx = currentPosition.dx - (previousPosition?.dx ?? currentPosition.dx);
+    final dy = currentPosition.dy - (previousPosition?.dy ?? currentPosition.dy);
+    final duration = currentTime.difference(lastTime ?? currentTime).inMilliseconds;
+
     final distance = sqrt(dx * dx + dy * dy);
     final speed = duration > 0 ? distance / duration : 0;
 
     previousPosition = currentPosition;
     lastTime = currentTime;
 
-    final data = {
-      'dx': dx,
-      'dy': dy,
-      'speed': speed,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-    };
+    const multiplier = 4.0;
+    int dxInt = (dx * multiplier).toInt();
+    int dyInt = (dy * multiplier).toInt();
+    int speedInt = speed.toInt();
 
-    if (widget.onGesture != null) {
-      widget.onGesture!(data);
-    }
+    BlocProvider.of<ManualBloc>(context).add(MoveMouse(dxInt, dyInt, speedInt));
+  }
+
+  void _handlePointerDown(PointerDownEvent event) {
+    previousPosition = event.localPosition;
+    lastTime = DateTime.now();
+  }
+
+  void _onTap() {
+    BlocProvider.of<ManualBloc>(context).add(MouseClick('left_click'));
+  }
+
+  void _onSecondaryTap() {
+    BlocProvider.of<ManualBloc>(context).add(MouseClick('right_click'));
   }
 
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 1, // Square shape
-      child: GestureDetector(
-        onPanStart: _onPanStart,
-        onPanUpdate: _onPanUpdate,
-        child: Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Center(
-            child: Text('TrackPad',
+      aspectRatio: 1,
+      child: Listener(
+        onPointerDown: _handlePointerDown,
+        onPointerMove: _handlePointerMove,
+        child: GestureDetector(
+          onTap: _onTap,
+          onSecondaryTap: _onSecondaryTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Center(
+              child: Text(
+                'TrackPad',
                 textAlign: TextAlign.center,
                 style: MyTextTheme.normal.copyWith(
                   fontSize: 14,
                   color: Colors.black54,
-                )),
+                ),
+              ),
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class CustomCircularSlider extends StatelessWidget {
+  final double min;
+  final double max;
+  final double initialValue;
+  final ValueChanged<double>? onChange;
+  final ValueChanged<double>? onChangeStart;
+  final ValueChanged<double>? onChangeEnd;
+  final bool isSpinner;
+  final Widget Function(double)? innerWidget;
+
+  const CustomCircularSlider({
+    Key? key,
+    this.min = 0,
+    this.max = 100,
+    this.initialValue = 50,
+    this.onChange,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.isSpinner = false,
+    this.innerWidget,
+  })  : assert(min <= max),
+        assert(initialValue >= min && initialValue <= max),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SleekCircularSlider(
+      min: min,
+      max: max,
+      initialValue: initialValue,
+      onChange: onChange,
+      onChangeStart: onChangeStart,
+      onChangeEnd: onChangeEnd,
+      innerWidget: innerWidget,
+      appearance: CircularSliderAppearance(
+        size: 200,
+        spinnerMode: isSpinner,
+        animationEnabled: false,
+        angleRange: 270,
+        startAngle: 135,
+        customWidths: CustomSliderWidths(
+          progressBarWidth: 8,
+          trackWidth: 2,
+          shadowWidth: 10,
+          handlerSize: 15,
+        ),
+        customColors: CustomSliderColors(
+          progressBarColors: [Colors.orangeAccent, Colors.yellow , Colors.grey, Colors.black],
+          trackColor: Colors.grey.withOpacity(0.3),
+          dotColor: Colors.grey,
+          shadowColor: Colors.black,
+          shadowMaxOpacity: 0.1,
+        ),
+        infoProperties: InfoProperties(
+          mainLabelStyle: MyTextTheme.normal.copyWith(color: Colors.transparent),
+          modifier: (double value) {
+            return '${value.toStringAsFixed(0)}';
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class LiquidBatteryIndicator extends StatelessWidget {
+  final double batteryLevel; // Value between 0.0 and 1.0
+
+  const LiquidBatteryIndicator({Key? key, required this.batteryLevel}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final fillColor = _getBatteryColor(batteryLevel);
+
+    return Container(
+      height: 50,
+      width: 300,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          // Fluid battery container
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: SizedBox(
+              width: 300,
+              child: LiquidLinearProgressIndicator(
+                value: batteryLevel,
+                valueColor: AlwaysStoppedAnimation(fillColor),
+                backgroundColor: Colors.grey[300],
+                borderColor: Colors.black,
+                borderWidth: 2.0,
+                borderRadius: 16.0,
+                direction: Axis.horizontal,
+                center: Text(
+                  '${(batteryLevel * 100).toInt()}%',
+                  style: MyTextTheme.headline
+                ),
+              ),
+            ),
+          ),
+          // Battery terminal
+          Positioned(
+            right: -6,
+            top: 10,
+            child: Container(
+              width: 12,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getBatteryColor(double level) {
+    if (level < 0.2) return Colors.redAccent;
+    if (level < 0.5) return Colors.orangeAccent;
+    return Colors.lightGreenAccent.shade700;
+  }
+}
+
+class MasterVolumeSlider extends StatefulWidget {
+  final int volume;
+  const MasterVolumeSlider({super.key, required this.volume});
+
+  @override
+  State<MasterVolumeSlider> createState() => _MasterVolumeSliderState();
+}
+
+class _MasterVolumeSliderState extends State<MasterVolumeSlider> {
+  late double _volume;
+
+  @override
+  void initState() {
+    super.initState();
+    _volume = widget.volume.toDouble();
+  }
+
+  Color _getThumbColor(double value) {
+    if (value < 40) return Colors.green;
+    if (value < 75) return Colors.orange;
+    return Colors.red;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Track background with gradient
+          Container(
+            height: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: const LinearGradient(
+                colors: [Colors.green, Colors.orange, Colors.red],
+              ),
+            ),
+          ),
+          // Slider lever
+          Positioned.fill(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackShape: const RectangularSliderTrackShape(),
+                trackHeight: 20,
+                activeTrackColor: Colors.transparent,
+                inactiveTrackColor: Colors.transparent,
+                thumbColor: Colors.transparent,
+                thumbShape: SliderComponentShape.noThumb,
+                overlayShape: SliderComponentShape.noOverlay,
+              ),
+              child: Slider(
+                value: _volume,
+                min: 0,
+                max: 100,
+                divisions: 100,
+                onChanged: (value) {
+                  setState(() {
+                    _volume = value;
+                  });
+                  BlocProvider.of<ManualBloc>(context).add(SetVolume(value.toInt()));
+                },
+              ),
+            ),
+          ),
+          // Lever thumb as a custom widget
+          Positioned(
+            left: _volume * 2.5,
+            top: 17,
+            child: Container(
+              width: 12,
+              height: 60,
+              decoration: BoxDecoration(
+                color:Colors.black,
+                border: Border.all(color: Colors.grey, width: 1),
+                borderRadius: BorderRadius.circular(3),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black38,
+                    offset: Offset(1, 2),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

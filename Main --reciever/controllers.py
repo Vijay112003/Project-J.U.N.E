@@ -3,6 +3,7 @@ import ctypes
 import os
 import threading
 import psutil
+import pyautogui
 from modules.brightness import Brightness
 from modules.volume import Volume
 from modules.power import Power
@@ -14,6 +15,14 @@ from macro.macro import MacroPlayer
 from macro.database import fetch_all_macros
 
 terminal = Terminal()  # Initialize Terminal instance
+
+# application path map
+APPLICATION_PATHS = {
+    "chrome": "C:\Program Files\Google\Chrome\Application\chrome.exe",
+    "edge": "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    "word": "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Word.lnk",
+    "excel": "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Excel.lnk"
+}
 
 def lock_computer():
     ctypes.windll.user32.LockWorkStation()
@@ -106,57 +115,57 @@ def process_action(payload):
 
             if module == "brightness" and action == "set":
                 threading.Thread(target=threaded_brightness_control, args=(value,)).start()
-                return {
-                    "type": "manual",
-                    "data": {
-                        "message": f"Brightness set to {value}"
-                    }
-                }
 
             elif module == "volume" and action == "set":
                 message = Volume.set_volume(int(value))
-                return {
-                    "type": "manual",
-                    "data": {
-                        "message": message
-                    }
-                }
 
             elif module == "power" and action == "toggle":
                 power_message = Power.toggle_power()
-                return {
-                    "type": "manual",
-                    "data": {
-                        "message": power_message
-                    }
-                }
 
             elif module == "lock" and action == "toggle":
                 lock_computer()
-                return {
-                    "type": "manual",
-                    "data": {
-                        "message": "Computer locked"
-                    }
-                }
 
             elif module == "wifi" and action == "toggle":
                 wifi_message = WiFi.toggle_wifi()
-                return {
-                    "type": "manual",
-                    "data": {
-                        "message": wifi_message
-                    }
-                }
 
             elif module == "bluetooth" and action == "toggle":
                 bt_message = Bluetooth.toggle_bluetooth()
-                return {
-                    "type": "manual",
-                    "data": {
-                        "message": bt_message
+                
+            elif module == "application":
+                action = data.get("action")
+                app_name = data.get("value")
+
+                if action == "launch":
+                    if app_name in APPLICATION_PATHS:
+                        os.startfile(APPLICATION_PATHS[app_name])
+                else:
+                    return {
+                        "type": "error",
+                        "message": f"Application '{app_name}' not found"
                     }
-                }
+                
+            elif module == "mouse":
+                action = data.get("action")
+    
+                if action == "move":
+                    dx = float(data.get("dx", 0))
+                    dy = float(data.get("dy", 0))
+                    speed = float(data.get("speed", 1))
+        
+                    pyautogui.moveRel(dx, dy)
+
+
+                elif action == "left_click":
+                    pyautogui.click(button='left')
+
+                elif action == "right_click":
+                    pyautogui.click(button='right')
+
+                else:
+                    return {
+                        "type": "error",
+                        "message": f"Unknown mouse action: {action}"
+                    }
 
             else:
                 return {

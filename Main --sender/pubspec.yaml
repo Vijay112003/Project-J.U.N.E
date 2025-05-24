@@ -43,6 +43,8 @@ dependencies:
   shared_preferences:
   lottie:
   http:
+  sleek_circular_slider:
+  liquid_progress_indicator_v2:
 
 
   # The following adds the Cupertino Icons font to your application.

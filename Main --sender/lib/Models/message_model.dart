@@ -1,4 +1,3 @@
-
 class SendMessageModel {
   final String type;
   final String action;
@@ -6,8 +5,11 @@ class SendMessageModel {
   final String value;
   final String text;
   final String filepath;
+  final String dx;
+  final String dy;
+  final String speed;
 
-  // Constructor to initialize the object with values
+  // Constructor with optional parameters
   SendMessageModel({
     required this.type,
     this.action = "",
@@ -15,9 +17,12 @@ class SendMessageModel {
     this.value = "",
     this.text = "",
     this.filepath = "",
+    this.dx = "",
+    this.dy = "",
+    this.speed = "",
   });
 
-  // Convert a MessageModel object into a JSON object
+  // Convert the object to JSON
   Map<String, dynamic> toJson() {
     return {
       "type": type,
@@ -26,6 +31,9 @@ class SendMessageModel {
       "value": value,
       "text": text,
       "filepath": filepath,
+      "dx": dx,
+      "dy": dy,
+      "speed": speed,
     };
   }
 }

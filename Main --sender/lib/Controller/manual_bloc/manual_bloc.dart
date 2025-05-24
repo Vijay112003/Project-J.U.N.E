@@ -16,6 +16,9 @@ class ManualBloc extends Bloc<ManualEvent, ManualState> {
     on<ToggleLock>(_onToggleLock);
     on<ToggleWifi>(_onToggleWifi);
     on<ToggleBluetooth>(_onToggleBluetooth);
+    on<MoveMouse>(_onMoveMouse);
+    on<MouseClick>(_onMouseClick);
+    on<ApplicationLaunch>(_onApplicationLaunch);
   }
 
   void _onSendSyncMessage(SyncButtonPressed event, Emitter<ManualState> emit) {
@@ -75,6 +78,35 @@ class ManualBloc extends Bloc<ManualEvent, ManualState> {
       type: 'manual',
       module: 'bluetooth',
       action: 'toggle',
+    );
+    WebSocketHelper.sendMessage(model);
+  }
+
+  void _onMoveMouse(MoveMouse event, Emitter<ManualState> emit) {
+    final model = SendMessageModel(
+      type: 'manual',
+      module: 'mouse',
+      action: 'move',
+      dx: event.dx.toString(),
+      dy: event.dy.toString(),
+      speed: '10',
+    );
+    WebSocketHelper.sendMessage(model);
+  }
+
+  void _onMouseClick(MouseClick event, Emitter<ManualState> emit) {
+    final model =
+        SendMessageModel(type: 'manual', module: 'mouse', action: event.button);
+    WebSocketHelper.sendMessage(model);
+  }
+
+  void _onApplicationLaunch(
+      ApplicationLaunch event, Emitter<ManualState> emit) {
+    final model = SendMessageModel(
+      type: 'manual',
+      module: 'application',
+      action: 'launch',
+      value: event.appName,
     );
     WebSocketHelper.sendMessage(model);
   }
